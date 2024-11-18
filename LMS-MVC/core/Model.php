@@ -12,6 +12,10 @@ abstract class Model
     protected static $primaryKey = 'id';
 
     protected static $wheres = [];
+    protected static $orderBys = [];
+    protected static $groupBy = [];
+    protected static $limit = [];
+    protected static $offset = [];
 
     public static function all()
     {
@@ -56,6 +60,35 @@ abstract class Model
         ];
 
         return $this;
+    }  
+
+    public function orderBy($column , $direction)
+    {
+        static::$orderBys[]=[
+            'column'=> $column,
+            'direction'=>$direction,
+        ];
+
+        return $this;
+    }
+    
+    public function groupBy($column)
+    {
+        static::$groupBy=$column;
+
+        return $this;
+    }
+    public function limit($limit)
+    {
+        static::$limit=$limit;
+
+        return $this;
+    }
+    public function offset($offset)
+    {
+        static::$offset=$offset;
+
+        return $this;
     }
 
     public function get()
@@ -71,11 +104,36 @@ abstract class Model
                 $query.=$where['column'] . " " . $where['operator'] . ' : ' . $where['column'];
             }
         }
+
+        if(!empty(static::$orederBys)){
+            $query .=" ODER BY ";
+            foreach(static::$orderBys as $index =>$orderBy){
+                if($index !=0){
+                    $query .=" , ";
+                }
+                $query.=$orderBy['column'] . " " . $where['direction'];
+            }
+        }
+
+        if(!empty(static::$groupBy)){
+            $query.="GROUP BY"  .static::$groupBy;
+        }
+        if(!empty(static::$limit)){
+            $query.="LIMIT"  .static::$limit;
+        }
+    
+        if(!empty(static::$offset)){
+            $query.="OFFSET"  .static::$offset;
+        }
+    
+        echo $query;
     
         $stmt = DB::query($query, $this->getWhereParameters());
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    
 
     protected function getWhereParameters()
     {

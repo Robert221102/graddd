@@ -13,7 +13,7 @@ class HomeController extends Controller
         // View::render("home");
        echo'<pre>';
        $users = new User;
-        print_r($users->where('id','=',1)->where('name', 'like', '%')->get());
+        print_r($users->orderBy("id","DESC")->limit(5)->OFFSET(1)->get());
     } 
 
 }
